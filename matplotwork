@@ -1,0 +1,327 @@
+Cargando...
+Ir directamente al contenido principal
+matplotlib- work
+matplotlib- work_Cuaderno no destacado
+Guardado por última vez: 7:02
+La Organización Mundial de la Salud (OMS) realiza un seguimiento de las métricas relacionadas con la salud en todo el mundo. Una de las métricas más importantes seguidas es la esperanza de vida al nacer. La tarea consiste en utilizar matplotlib para visualizar estos datos y descubrir tendencias y patrones que podrían influir en la esperanza de vida.
+
+[ ]
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+Lectura y analisis de datos
+[ ]
+df= pd.read_csv("Life Expectancy Data.csv")
+[ ]
+df. head(100)
+output
+
+Load the dataset using pandas and display the first few rows.
+
+Calculate and display summary statistics (mean, median, min, max) for the 'Life expectancy' column.
+
+[ ]
+df.describe()
+output
+
+[ ]
+df['infant deaths'].describe()
+output
+count    2938.000000
+mean       30.303948
+std       117.926501
+min         0.000000
+25%         0.000000
+50%         3.000000
+75%        22.000000
+max      1800.000000
+Name: infant deaths, dtype: float64
+There are some columns with an extra space before the name, ie: " name" instead of "name". Fix it.
+
+[ ]
+#quitar espacios en blamcos
+df.columns = df.columns.str.strip()
+
+Filter the data to show only rows where 'Life expectancy' is above 70
+
+[ ]
+Life_expectancy_is_above_70 = df[df['Life expectancy']>=70]
+print(Life_expectancy_is_above_70)
+output
+       Country  Year      Status  Life expectancy  Adult Mortality  \
+16     Albania  2015  Developing             77.8             74.0   
+17     Albania  2014  Developing             77.5              8.0   
+18     Albania  2013  Developing             77.2             84.0   
+19     Albania  2012  Developing             76.9             86.0   
+20     Albania  2011  Developing             76.6             88.0   
+...        ...   ...         ...              ...              ...   
+2885  Viet Nam  2004  Developing             74.2            136.0   
+2886  Viet Nam  2003  Developing             74.0            137.0   
+2887  Viet Nam  2002  Developing             73.8            137.0   
+2888  Viet Nam  2001  Developing             73.6            138.0   
+2889  Viet Nam  2000  Developing             73.4            139.0   
+
+      infant deaths  Alcohol  percentage expenditure  Hepatitis B  Measles  \
+16                0     4.60              364.975229         99.0        0   
+17                0     4.51              428.749067         98.0        0   
+18                0     4.76              430.876979         99.0        0   
+19                0     5.14              412.443356         99.0        9   
+20                0     5.37              437.062100         99.0       28   
+...             ...      ...                     ...          ...      ...   
+2885             29     2.86                0.000000         94.0      217   
+2886             30     2.19                0.000000         78.0     2297   
+2887             30     2.03                0.000000          NaN     6755   
+2888             32     1.84                0.000000          NaN    12058   
+2889             33     1.60                0.000000          NaN    16512   
+
+      ...  Polio  Total expenditure  Diphtheria  HIV/AIDS          GDP  \
+16    ...   99.0               6.00        99.0       0.1  3954.227830   
+17    ...   98.0               5.88        98.0       0.1  4575.763787   
+18    ...   99.0               5.66        99.0       0.1  4414.723140   
+19    ...   99.0               5.59        99.0       0.1  4247.614380   
+20    ...   99.0               5.71        99.0       0.1  4437.178680   
+...   ...    ...                ...         ...       ...          ...   
+2885  ...   96.0               5.90        96.0       0.2          NaN   
+2886  ...   96.0               4.84        99.0       0.2          NaN   
+2887  ...   92.0               4.70        75.0       0.2          NaN   
+2888  ...   96.0               5.17        96.0       0.1          NaN   
+2889  ...   96.0               4.89        96.0       0.1          NaN   
+
+      Population  thinness  1-19 years  thinness 5-9 years  \
+16       28873.0                   1.2                 1.3   
+17      288914.0                   1.2                 1.3   
+18      289592.0                   1.3                 1.4   
+19        2941.0                   1.3                 1.4   
+20      295195.0                   1.4                 1.5   
+...          ...                   ...                 ...   
+2885         NaN                  15.4                16.1   
+2886         NaN                  15.6                16.2   
+2887         NaN                  15.6                16.3   
+2888         NaN                  15.7                16.4   
+2889         NaN                  15.8                16.4   
+
+      Income composition of resources  Schooling  
+16                              0.762       14.2  
+17                              0.761       14.2  
+18                              0.759       14.2  
+19                              0.752       14.2  
+20                              0.738       13.3  
+...                               ...        ...  
+2885                            0.601       11.0  
+2886                            0.592       10.9  
+2887                            0.584       10.7  
+2888                            0.576       10.6  
+2889                            0.569       10.4  
+
+[1628 rows x 22 columns]
+Gráficos basicos
+Using plt.scatter create a scatter plot between 'BMI' and 'Life expectancy'. Using plt.xlabel and plt.ylabel change the plot labels to "BMI" and "Life Expectancy"
+
+[ ]
+x = df['BMI']
+y = df['Life expectancy']
+plt.scatter(x,y)
+plt.xlabel('esperaza de vida')
+plt.ylabel('BMI')
+output
+
+Using pandas groupby compute the mean Life Expectancy per Status.
+
+Now, using plt.bar create a grouped bar chart comparing the average 'Life expectancy' for each 'Status' (Developing/Developed). Using plt.title add a title to the plot.
+
+[ ]
+df_status=df.groupby('Status')['Life expectancy'].mean()
+plt.bar(df_status.index, df_status.values)
+
+output
+
+Gráficos de series temporales
+Create a line plt.plot showing the trend of 'Life expectancy' over the years for a specific country (e.g., Afghanistan). Add labels in the x and y axis, add also a title.
+
+[ ]
+plt.plot??
+[ ]
+country_data = df[df['Country'] == 'Afghanistan']
+
+# Create a line plot
+plt.plot(country_data['Year'], country_data['Life expectancy'])
+
+# Add labels and title
+plt.xlabel('Year')
+plt.ylabel('Life Expectancy')
+plt.title('Life Expectancy Trend for Afghanistan')
+
+# Show the plot
+plt.show()
+output
+
+Gráfico de correlaciones con seaborn
+Create a new dataframe that only has the numeric columns, ie: Life Expectancy, Adult Mortality, etc.
+
+Using df.corr compute the correlation between the columns.
+
+Using sns.heatmap create an image showing the correlation between features. Use the parameters annot=True, cmap='coolwarm', fmt='.2f' to make the plot nicer.
+
+[ ]
+# solo me selecciona columnas con valores numericos
+# Seleccionar solo las columnas numéricas
+df_numeric = df.select_dtypes(include='number')
+
+# Ordenar las columnas numéricas
+df_numeric = df_numeric.reindex(sorted(df_numeric.columns), axis=1)
+
+# Mostrar el DataFrame resultante
+print(df_numeric)
+output
+      Adult Mortality  Alcohol   BMI  Diphtheria         GDP  HIV/AIDS  \
+0               263.0     0.01  19.1        65.0  584.259210       0.1   
+1               271.0     0.01  18.6        62.0  612.696514       0.1   
+2               268.0     0.01  18.1        64.0  631.744976       0.1   
+3               272.0     0.01  17.6        67.0  669.959000       0.1   
+4               275.0     0.01  17.2        68.0   63.537231       0.1   
+...               ...      ...   ...         ...         ...       ...   
+2933            723.0     4.36  27.1        65.0  454.366654      33.6   
+2934            715.0     4.06  26.7        68.0  453.351155      36.7   
+2935             73.0     4.43  26.3        71.0   57.348340      39.8   
+2936            686.0     1.72  25.9        75.0  548.587312      42.1   
+2937            665.0     1.68  25.5        78.0  547.358878      43.5   
+
+      Hepatitis B  Income composition of resources  Life expectancy  Measles  \
+0            65.0                            0.479             65.0     1154   
+1            62.0                            0.476             59.9      492   
+2            64.0                            0.470             59.9      430   
+3            67.0                            0.463             59.5     2787   
+4            68.0                            0.454             59.2     3013   
+...           ...                              ...              ...      ...   
+2933         68.0                            0.407             44.3       31   
+2934          7.0                            0.418             44.5      998   
+2935         73.0                            0.427             44.8      304   
+2936         76.0                            0.427             45.3      529   
+2937         79.0                            0.434             46.0     1483   
+
+      Polio  Population  Schooling  Total expenditure  Year  infant deaths  \
+0       6.0  33736494.0       10.1               8.16  2015             62   
+1      58.0    327582.0       10.0               8.18  2014             64   
+2      62.0  31731688.0        9.9               8.13  2013             66   
+3      67.0   3696958.0        9.8               8.52  2012             69   
+4      68.0   2978599.0        9.5               7.87  2011             71   
+...     ...         ...        ...                ...   ...            ...   
+2933   67.0  12777511.0        9.2               7.13  2004             27   
+2934    7.0  12633897.0        9.5               6.52  2003             26   
+2935   73.0    125525.0       10.0               6.53  2002             25   
+2936   76.0  12366165.0        9.8               6.16  2001             25   
+2937   78.0  12222251.0        9.8               7.10  2000             24   
+
+      percentage expenditure  thinness  1-19 years  thinness 5-9 years  \
+0                  71.279624                  17.2                17.3   
+1                  73.523582                  17.5                17.5   
+2                  73.219243                  17.7                17.7   
+3                  78.184215                  17.9                18.0   
+4                   7.097109                  18.2                18.2   
+...                      ...                   ...                 ...   
+2933                0.000000                   9.4                 9.4   
+2934                0.000000                   9.8                 9.9   
+2935                0.000000                   1.2                 1.3   
+2936                0.000000                   1.6                 1.7   
+2937                0.000000                  11.0                11.2   
+
+      under-five deaths  
+0                    83  
+1                    86  
+2                    89  
+3                    93  
+4                    97  
+...                 ...  
+2933                 42  
+2934                 41  
+2935                 40  
+2936                 39  
+2937                 39  
+
+[2938 rows x 20 columns]
+[ ]
+df_corr = df_numeric
+df_numeric.corr()
+
+output
+
+Using sns.pairplot create a pair plot for a subset of variables ('Life expectancy', 'Alcohol', 'BMI', 'HIV/AIDS').
+
+[ ]
+plot =
+g = sns.pairplot(plot,hue='Life expectancy',palette='Spectral' )
+
+output
+
+Haz doble clic (o pulsa Intro) para editar
+
+[ ]
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Supongamos que df es tu DataFrame con las columnas 'Life expectancy', 'Alcohol', 'BMI', 'HIV/AIDS' y 'OtraColumna'
+plot = df[['Life expectancy', 'Alcohol', 'BMI', 'HIV/AIDS']]
+
+# Crear un gráfico de pares con otra columna como variable
+g = sns.pairplot(plot, hue='Life expectancy', palette='Spectral', vars=['Alcohol', 'BMI', 'HIV/AIDS'])
+
+# Mostrar el gráfico
+plt.show()
+
+output
+
+[ ]
+## matrix_corr = df_numeric[['Life expectancy', 'Alcohol', 'BMI', 'HIV/AIDS']]
+##fig, ax = plt.subplots()
+## sns.heatmap(matrix_corr, annot=True, cmap='coolwarm', fmt ='.2f', linewidths= .5, ax=ax)
+ ##plt.show()
+
+output
+
+[ ]
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib
+import matplotlib as mpl
+
+
+vegetables = ["cucumber", "tomato", "lettuce", "asparagus",
+              "potato", "wheat", "barley"]
+farmers = ["Farmer Joe", "Upland Bros.", "Smith Gardening",
+           "Agrifun", "Organiculture", "BioGoods Ltd.", "Cornylee Corp."]
+
+harvest = np.array([[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
+                    [2.4, 0.0, 4.0, 1.0, 2.7, 0.0, 0.0],
+                    [1.1, 2.4, 0.8, 4.3, 1.9, 4.4, 0.0],
+                    [0.6, 0.0, 0.3, 0.0, 3.1, 0.0, 0.0],
+                    [0.7, 1.7, 0.6, 2.6, 2.2, 6.2, 0.0],
+                    [1.3, 1.2, 0.0, 0.0, 0.0, 3.2, 5.1],
+                    [0.1, 2.0, 0.0, 1.4, 0.0, 1.9, 6.3]])
+
+
+fig, ax = plt.subplots()
+im = ax.imshow(harvest)
+
+# Show all ticks and label them with the respective list entries
+ax.set_xticks(np.arange(len(farmers)), labels=farmers)
+ax.set_yticks(np.arange(len(vegetables)), labels=vegetables)
+
+# Rotate the tick labels and set their alignment.
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+# Loop over data dimensions and create text annotations.
+for i in range(len(vegetables)):
+    for j in range(len(farmers)):
+        text = ax.text(j, i, harvest[i, j],
+                       ha="center", va="center", color="w")
+
+ax.set_title("Harvest of local farmers (in tons/year)")
+fig.tight_layout()
+plt.show()
+output
+
+Productos de pago de Colab - Cancelar contratos
+done
+Conectado a del backend de Google Compute Engine que utiliza Python 3
