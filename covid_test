@@ -1,0 +1,154 @@
+SELECT * 
+FROM `porfolioproyect.covid_vaccine.covid_dead` 
+WHERE continent is not null
+ORDER BY 3, 4;
+
+--SELECT * 
+--FROM `porfolioproyect.covid_vaccine.vaccination` 
+--ORDER BY 3, 4;
+
+--SELECT DATA THAT WE ARE GGOING TO BE USING
+
+SELECT location, date, total_cases, new_cases, total_deaths, population
+ FROM `porfolioproyect.covid_vaccine.covid_dead` 
+ ORDER BY 1,2
+
+ --LOKING AT TOTAL CASES VS TOTAL DEATHS in costa rica 
+
+SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS death_rate
+
+FROM `porfolioproyect.covid_vaccine.covid_dead` 
+ WHERE location LIKE "Costa Rica"
+  ORDER BY 1, 2;
+
+  --total cases vs total populations
+
+SELECT location, date, total_cases, population, (total_cases/population)*100 AS DEATHPORCENTEJE
+
+ FROM `porfolioproyect.covid_vaccine.covid_dead` 
+  WHERE location LIKE "Costa Rica"
+   ORDER BY 1, 2;
+
+   --LOKING FOR COUNTRYS WITH HIGHEST INFEECTION RATE COMPARED TO POPULATIONS
+
+SELECT location, MAX(total_cases)AS HIGHESTINFEECTIONRATE, population,MAX((total_cases/population)) AS PERCENTPOPULATIONINFECCION
+ FROM `porfolioproyect.covid_vaccine.covid_dead` 
+  --WHERE location LIKE "Costa Rica"
+   GROUP BY location,population
+   ORDER BY PERCENTPOPULATIONINFECCION DESC
+
+   --SHOWING COUNTRYS WITH HIGHEST DEATH COUNT PER POPULATION 
+
+   
+SELECT location, MAX(CAST(total_deaths AS INT64)) AS totaldeathcount
+FROM `porfolioproyect.covid_vaccine.covid_dead` 
+-- WHERE location LIKE "Costa Rica"
+WHERE continent IS NOT NULL
+GROUP BY location
+ORDER BY totaldeathcount DESC;
+
+--total death count by continent
+
+SELECT continent, MAX(CAST(total_deaths AS INT64)) AS totaldeathcount
+FROM `porfolioproyect.covid_vaccine.covid_dead` 
+-- WHERE location LIKE "Costa Rica"
+WHERE continent IS NOT NULL
+GROUP BY continent
+ORDER BY totaldeathcount DESC;
+
+--Global Numbers 
+
+SELECT 
+  date, 
+  SUM(new_cases) AS total_cases, 
+  SUM(CAST(new_deaths AS INT64)) AS total_deaths,
+  CASE
+    WHEN SUM(new_cases) = 0 THEN 0  -- Evita la división por cero
+    ELSE (SUM(CAST(new_deaths AS INT64))/SUM(new_cases)) * 100
+  END AS DEATHPERCENTEGE
+FROM `porfolioproyect.covid_vaccine.covid_dead`
+WHERE continent IS NOT NULL
+GROUP BY date
+ORDER BY 2,3
+
+
+
+--SOLO ME VA FILTAR DE LA COLUMNA LOCATION EL PAIS QUE QUIERO
+
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
+FROM porfolioproyect.covid_vaccine.covid_dead dea
+JOIN porfolioproyect.covid_vaccine.vaccination vac
+ON dea.location = vac.location
+WHERE dea.continent IS NOT NULL
+AND dea.date = vac.date 
+AND dea.location = 'Canada'
+ORDER BY 1, 2, 3;
+
+---total de vacunados por participacion de region 
+
+SELECT 
+  dea.continent, 
+  dea.location, 
+  dea.date, 
+  dea.population, 
+  vac.new_vaccinations,
+  SUM(CAST(vac.new_vaccinations AS INT64)) OVER (PARTITION BY dea.location) AS total_vaccinations_by_location
+FROM porfolioproyect.covid_vaccine.covid_dead dea
+JOIN porfolioproyect.covid_vaccine.vaccination vac
+ON dea.location = vac.location
+WHERE dea.continent IS NOT NULL
+AND dea.date = vac.date
+ORDER BY 1, 2, 3;
+
+
+
+
+--LOOKING AT TOTAL POPULATION
+
+SELECT dea.continent,dea.location, dea.date,dea.population, vac.new_vaccinations,
+SUM(Cast(vac.new_vaccinations AS INT64)) over (partition by dea.location order by dea.location, dea.date) as rollingpeoplevaccinated
+ FROM porfolioproyect.covid_vaccine.covid_dead dea
+  JOIN porfolioproyect.covid_vaccine.vaccination vac
+   ON dea.location = vac.location
+   WHERE dea.continent IS NOT NULL
+   and dea.date = vac.date
+   ORDER BY 1,2,3
+
+--crea view del anterior
+CREATE VIEW TOTAL_POPULATION AS
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
+SUM(CAST(vac.new_vaccinations AS INT64)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rollingpeoplevaccinated
+FROM porfolioproyect.covid_vaccine.covid_dead dea
+JOIN porfolioproyect.covid_vaccine.vaccination vac
+ON dea.location = vac.location
+WHERE dea.continent IS NOT NULL
+AND dea.date = vac.date;
+
+SELECT * FROM nombre_del_dataset.TOTALPOPULATION;
+
+
+-- CTE
+  
+WITH PopvsVac AS (
+  SELECT 
+    dea.continent,
+    dea.location,
+    dea.date,
+    dea.population,
+    vac.new_vaccinations,
+    SUM(CAST(vac.new_vaccinations AS INT64)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rollingpeoplevaccinated
+  FROM 
+    porfolioproyect.covid_vaccine.covid_dead dea
+  JOIN 
+    porfolioproyect.covid_vaccine.vaccination vac
+  ON 
+    dea.location = vac.location
+  WHERE 
+    dea.continent IS NOT NULL
+    AND dea.date = vac.date
+    
+)
+SELECT *, (rollingpeoplevaccinated/population)*100
+FROM PopvsVac;
+
+
